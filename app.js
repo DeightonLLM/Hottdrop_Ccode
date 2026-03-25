@@ -269,7 +269,7 @@ async function generateRelease() {
 </div>
 
 <div style="font-size:10px; color:var(--muted); margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
-  Powered by HD2.ai | Ref: ${Date.now().toString(36).toUpperCase()}
+  Powered by <a href="https://hd2.ai" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">HD2.ai</a> | Ref: ${Date.now().toString(36).toUpperCase()}
 </div>
     `;
 
@@ -424,7 +424,7 @@ async function createDrop() {
 </div>
 
 <div style="font-size:10px; color:var(--muted); margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
-  Powered by HD2.ai | ${data.minted_at}
+  Powered by <a href="https://hd2.ai" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">HD2.ai</a> | ${data.minted_at}
 </div>
     `;
 
@@ -549,7 +549,7 @@ async function executeModalMint(trackName, artistName, style, priceEth) {
         <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">Token ID: <span style="color:var(--cyan);">#${data.token_id}</span></div>
         <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">Block: <span style="color:var(--text);">${data.block_number}</span></div>
         <div class="modal-tx">${data.tx_hash}</div>
-        <div style="font-size:10px; color:var(--muted); margin-top:8px;">Powered by HD2.ai</div>
+        <div style="font-size:10px; color:var(--muted); margin-top:8px;">Powered by <a href="https://hd2.ai" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">HD2.ai</a></div>
       </div>
     `;
     btn.style.display = "none";
