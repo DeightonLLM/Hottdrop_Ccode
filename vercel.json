@@ -1,25 +1,21 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
+      "source": "/generate-release",
+      "destination": "/api"
+    },
+    {
+      "source": "/artist-onboard",
+      "destination": "/api"
+    },
+    {
+      "source": "/create-drop",
+      "destination": "/api"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
     }
-  ],
-  "routes": [
-    {
-      "src": "/generate-release",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/artist-onboard",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/create-drop",
-      "dest": "/server.js"
-    },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

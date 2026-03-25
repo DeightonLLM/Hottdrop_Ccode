@@ -16,10 +16,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve all static files (HTML, CSS, JS, images) from /public
-app.use(express.static(path.join(__dirname, "public")));
-// Serve the root index.html
-app.use(express.static(__dirname));
+// Serverless deployments do not need static middleware; Vercel handles static files natively.
 
 // ============================================================
 // ENDPOINT: POST /generate-release
@@ -208,25 +205,13 @@ app.post("/create-drop", (req, res) => {
   });
 });
 
-// ============================================================
-// CATCH-ALL: serve index.html for any unknown route
-// ============================================================
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+// Export the app for Vercel
+module.exports = app;
 
-// ---- Start server ----
-app.listen(PORT, () => {
-  console.log("");
-  console.log("  ██╗  ██╗ ██████╗ ████████╗████████╗██████╗ ██████╗  ██████╗ ██████╗ ");
-  console.log("  ██║  ██║██╔═══██╗╚══██╔══╝╚══██╔══╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗");
-  console.log("  ███████║██║   ██║   ██║      ██║   ██║  ██║██████╔╝██║   ██║██████╔╝");
-  console.log("  ██╔══██║██║   ██║   ██║      ██║   ██║  ██║██╔══██╗██║   ██║██╔═══╝ ");
-  console.log("  ██║  ██║╚██████╔╝   ██║      ██║   ██████╔╝██║  ██║╚██████╔╝██║     ");
-  console.log("  ╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═╝   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ");
-  console.log("");
-  console.log(`  Server running at: http://localhost:${PORT}`);
-  console.log(`  Powered by HD2.ai`);
-  console.log(`  Press Ctrl+C to stop`);
-  console.log("");
-});
+// Local development fallback
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`  Server running locally at: http://localhost:${PORT}`);
+    console.log(`  Powered by HD2.ai`);
+  });
+}
