@@ -209,9 +209,10 @@ app.post("/create-drop", (req, res) => {
 module.exports = app;
 
 // Local development fallback
-if (process.env.NODE_ENV !== "production") {
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`  Server running locally at: http://localhost:${PORT}`);
     console.log(`  Powered by HD2.ai`);
   });
 }
+

@@ -2,11 +2,11 @@
   "name": "hottdrop",
   "version": "1.0.0",
   "description": "Hottdrop - Web3 Music & Art Studio powered by HD2.ai",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node local-dev.js",
+    "dev": "node local-dev.js"
   },
+
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5"
