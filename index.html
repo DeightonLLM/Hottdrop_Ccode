@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOTTDROP — Web3 Music &amp; Art Studio</title>
+  <meta name="description" content="Hottdrop is the Web3 music label platform where artists mint NFTs, build DAOs, and own their creative future. Powered by HD2.ai." />
+  <meta property="og:title" content="HOTTDROP — Web3 Music &amp; Art Studio" />
+  <meta property="og:description" content="Fuse music, art, events &amp; Web3. Empower artists globally via smart contracts &amp; NFTs." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV
+  ============================================================ -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo" onclick="scrollToSection('hero'); return false;">
+        <img src="public/logo-white.png" alt="Hottdrop" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <span class="logo-text" style="display:none;">HOTTDROP</span>
+      </a>
+      <div class="nav-links">
+        <a href="#drops"    onclick="scrollToSection('drops'); return false;">DROPS</a>
+        <a href="#terminal" onclick="scrollToSection('terminal'); return false;">AI STUDIO</a>
+        <a href="#dao"      onclick="scrollToSection('dao'); return false;">DAO</a>
+        <a href="#apply"    onclick="scrollToSection('apply'); return false;">APPLY</a>
+      </div>
+      <div class="nav-right">
+        <button class="btn-wallet" id="walletBtn" onclick="connectWallet()">
+          <span class="wallet-icon">◈</span>
+          <span id="walletLabel">CONNECT WALLET</span>
+        </button>
+      </div>
+      <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- Mobile drawer -->
+    <div class="nav-mobile" id="navMobile">
+      <a href="#drops"    onclick="scrollToSection('drops'); toggleMobileNav(); return false;">DROPS</a>
+      <a href="#terminal" onclick="scrollToSection('terminal'); toggleMobileNav(); return false;">AI STUDIO</a>
+      <a href="#dao"      onclick="scrollToSection('dao'); toggleMobileNav(); return false;">DAO</a>
+      <a href="#apply"    onclick="scrollToSection('apply'); toggleMobileNav(); return false;">APPLY</a>
+      <button class="btn-wallet mobile-wallet" onclick="connectWallet(); toggleMobileNav()">
+        <span class="wallet-icon">◈</span>
+        <span id="walletLabelMobile">CONNECT WALLET</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" style="background-image: url('public/hero-bg.jpg');"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-noise"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="tag">WEB3 MUSIC LABEL</span>
+        <span class="tag tag-pulse">LIVE ON POLYGON</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="decode-text" data-text="HOTTDROP">HOTTDROP</span>
+      </h1>
+      <p class="hero-sub">Fuse music, art, events &amp; Web3.<br/>Empower artists globally via smart contracts &amp; NFTs.</p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-n">85%</span><span class="stat-l">ARTIST REVENUE</span></div>
+        <div class="stat"><span class="stat-n">50</span><span class="stat-l">FOUNDING SLOTS</span></div>
+        <div class="stat"><span class="stat-n">4+</span><span class="stat-l">GENRE DAOs</span></div>
+        <div class="stat"><span class="stat-n">0%</span><span class="stat-l">LOCK-IN</span></div>
+      </div>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="scrollToSection('terminal')">
+          <span>LAUNCH AI STUDIO</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="btn-secondary" onclick="scrollToSection('apply')">
+          APPLY AS ARTIST
+        </button>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       NFT DROPS SHOWCASE
+  ============================================================ -->
+  <section class="section drops-section" id="drops">
+    <div class="section-header">
+      <span class="section-label">// CURRENT DROPS</span>
+      <h2>LIVE NFT COLLECTIONS</h2>
+      <p>Limited editions. Perpetual royalties. Own a piece of the culture.</p>
+    </div>
+    <div class="drops-grid">
+      <!-- Drop 1 -->
+      <div class="drop-card" data-genre="DUBSTEP">
+        <div class="drop-img-wrap">
+          <img src="public/nft-cover-1.jpg" alt="Drop 1" onerror="this.parentElement.classList.add('img-fallback')" />
+          <div class="drop-badge">MINTING LIVE</div>
+          <div class="drop-genre">DUBSTEP</div>
+        </div>
+        <div class="drop-info">
+          <h3>BASS ENTITY VOL.1</h3>
+          <p class="drop-artist">DJ VOLTAGE x HOTTDROP</p>
+          <div class="drop-meta">
+            <span>47/100 minted</span>
+            <span class="drop-price">0.08 ETH</span>
+          </div>
+          <div class="drop-progress"><div class="drop-bar" style="width:47%"></div></div>
+          <button class="btn-mint" onclick="triggerMintFlow('BASS ENTITY VOL.1', 'DJ VOLTAGE', 'Dubstep', '0.08')">
+            MINT NOW
+          </button>
+        </div>
+      </div>
+      <!-- Drop 2 -->
+      <div class="drop-card" data-genre="JUNGLE">
+        <div class="drop-img-wrap">
+          <img src="public/nft-cover-2.jpg" alt="Drop 2" onerror="this.parentElement.classList.add('img-fallback')" />
+          <div class="drop-badge drop-badge-red">ALMOST GONE</div>
+          <div class="drop-genre">JUNGLE/DnB</div>
+        </div>
+        <div class="drop-info">
+          <h3>AMEN ARCHIVES</h3>
+          <p class="drop-artist">MC BREDREN x HOTTDROP</p>
+          <div class="drop-meta">
+            <span>89/100 minted</span>
+            <span class="drop-price">0.05 ETH</span>
+          </div>
+          <div class="drop-progress"><div class="drop-bar" style="width:89%"></div></div>
+          <button class="btn-mint" onclick="triggerMintFlow('AMEN ARCHIVES', 'MC BREDREN', 'Jungle', '0.05')">
+            MINT NOW
+          </button>
+        </div>
+      </div>
+      <!-- Drop 3 -->
+      <div class="drop-card" data-genre="REGGAE">
+        <div class="drop-img-wrap">
+          <img src="public/nft-cover-3.jpg" alt="Drop 3" onerror="this.parentElement.classList.add('img-fallback')" />
+          <div class="drop-badge drop-badge-green">PRESALE</div>
+          <div class="drop-genre">REGGAE</div>
+        </div>
+        <div class="drop-info">
+          <h3>ROOTS FREQUENCY</h3>
+          <p class="drop-artist">EMPRESS IRIE x HOTTDROP</p>
+          <div class="drop-meta">
+            <span>12/200 minted</span>
+            <span class="drop-price">0.04 ETH</span>
+          </div>
+          <div class="drop-progress"><div class="drop-bar" style="width:6%"></div></div>
+          <button class="btn-mint" onclick="triggerMintFlow('ROOTS FREQUENCY', 'EMPRESS IRIE', 'Reggae', '0.04')">
+            MINT NOW
+          </button>
+        </div>
+      </div>
+      <!-- Drop 4 -->
+      <div class="drop-card" data-genre="HIPHOP">
+        <div class="drop-img-wrap">
+          <img src="public/nft-cover-4.jpg" alt="Drop 4" onerror="this.parentElement.classList.add('img-fallback')" />
+          <div class="drop-badge">COMING SOON</div>
+          <div class="drop-genre">HIP-HOP</div>
+        </div>
+        <div class="drop-info">
+          <h3>LYRIC LEDGER</h3>
+          <p class="drop-artist">KONSCIOUS x HOTTDROP</p>
+          <div class="drop-meta">
+            <span>0/150 minted</span>
+            <span class="drop-price">0.06 ETH</span>
+          </div>
+          <div class="drop-progress"><div class="drop-bar" style="width:0%"></div></div>
+          <button class="btn-mint btn-mint-disabled" disabled>
+            NOTIFY ME
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       AI TERMINAL STUDIO
+  ============================================================ -->
+  <section class="section terminal-section" id="terminal">
+    <div class="section-header">
+      <span class="section-label">// HD2.AI INTEGRATION</span>
+      <h2>AI RELEASE STUDIO</h2>
+      <p>Generate press kits, NFT descriptions &amp; social campaigns. Powered by HD2.ai.</p>
+    </div>
+    <div class="terminal-wrap">
+      <!-- Tab bar -->
+      <div class="terminal-tabs">
+        <button class="tab-btn active" data-tab="release" onclick="switchTab('release', this)">
+          ⚡ GENERATE RELEASE PACK
+        </button>
+        <button class="tab-btn" data-tab="nft" onclick="switchTab('nft', this)">
+          ◈ CREATE NFT DROP
+        </button>
+      </div>
+
+      <!-- Tab: Release Pack -->
+      <div class="tab-panel active" id="tab-release">
+        <div class="terminal-body">
+          <div class="terminal-topbar">
+            <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+            <span class="terminal-title">hottdrop@hd2ai:~$ generate-release</span>
+          </div>
+          <div class="terminal-form">
+            <div class="form-row">
+              <label>ARTIST NAME</label>
+              <input type="text" id="rel-artist" placeholder="e.g. DJ Voltage" />
+            </div>
+            <div class="form-row">
+              <label>TRACK NAME</label>
+              <input type="text" id="rel-track" placeholder="e.g. Bassline Protocol" />
+            </div>
+            <div class="form-row">
+              <label>GENRE / STYLE</label>
+              <select id="rel-style">
+                <option value="">-- SELECT GENRE --</option>
+                <option value="Dubstep">Dubstep</option>
+                <option value="Jungle">Jungle</option>
+                <option value="DnB">DnB</option>
+                <option value="Reggae">Reggae</option>
+                <option value="Dancehall">Dancehall</option>
+                <option value="Hip-Hop">Hip-Hop</option>
+              </select>
+            </div>
+            <button class="btn-terminal" onclick="generateRelease()">
+              <span id="rel-btn-text">▶ GENERATE RELEASE PACK</span>
+            </button>
+          </div>
+          <!-- Output panel -->
+          <div class="terminal-output" id="release-output">
+            <div class="output-placeholder">
+              <span class="cursor-blink">_</span>
+              <span> Awaiting input...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Create NFT Drop -->
+      <div class="tab-panel" id="tab-nft">
+        <div class="terminal-body">
+          <div class="terminal-topbar">
+            <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+            <span class="terminal-title">hottdrop@hd2ai:~$ create-drop</span>
+          </div>
+          <div class="terminal-form">
+            <div class="form-row">
+              <label>ARTIST NAME</label>
+              <input type="text" id="nft-artist" placeholder="e.g. MC Bredren" />
+            </div>
+            <div class="form-row">
+              <label>TRACK / COLLECTION NAME</label>
+              <input type="text" id="nft-track" placeholder="e.g. Amen Archives Vol.2" />
+            </div>
+            <div class="form-row">
+              <label>EDITION SIZE</label>
+              <input type="number" id="nft-edition" placeholder="e.g. 100" min="1" max="10000" />
+            </div>
+            <div class="form-row">
+              <label>MINT PRICE (ETH)</label>
+              <input type="number" id="nft-price" placeholder="e.g. 0.05" step="0.01" min="0.001" />
+            </div>
+            <button class="btn-terminal" onclick="createDrop()">
+              <span id="nft-btn-text">◈ SIMULATE NFT MINT</span>
+            </button>
+          </div>
+          <div class="terminal-output" id="nft-output">
+            <div class="output-placeholder">
+              <span class="cursor-blink">_</span>
+              <span> Awaiting input...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DAO VISION
+  ============================================================ -->
+  <section class="section dao-section" id="dao">
+    <div class="dao-bg" style="background-image: url('public/dao-vision.jpg');"></div>
+    <div class="dao-overlay"></div>
+    <div class="dao-content">
+      <div class="section-header dao-header">
+        <span class="section-label">// DECENTRALIZED GOVERNANCE</span>
+        <h2>BUILD YOUR GENRE DAO</h2>
+        <p>Every artist on Hottdrop can build their own community-governed ecosystem where fans become stakeholders.</p>
+      </div>
+      <div class="dao-grid">
+        <div class="dao-card">
+          <div class="dao-icon">⚡</div>
+          <h3>DUBSTEP DAO</h3>
+          <p>Sound design innovation. Production battles. Vote on featured producers &amp; remix contests.</p>
+          <span class="dao-tag">4 active proposals</span>
+        </div>
+        <div class="dao-card">
+          <div class="dao-icon">🥁</div>
+          <h3>JUNGLE / DnB DAO</h3>
+          <p>Break science &amp; sample libraries. Curate sample packs. VIP remix selections via governance.</p>
+          <span class="dao-tag">2 active proposals</span>
+        </div>
+        <div class="dao-card">
+          <div class="dao-icon">☀️</div>
+          <h3>REGGAE DAO</h3>
+          <p>Cultural heritage &amp; sound system culture. Select dub plate specials. Community events.</p>
+          <span class="dao-tag">Coming Q3</span>
+        </div>
+        <div class="dao-card">
+          <div class="dao-icon">🎤</div>
+          <h3>HIP-HOP DAO</h3>
+          <p>Producer markets &amp; lyric ownership. Beat licensing platform. Cipher networks.</p>
+          <span class="dao-tag">Coming Q4</span>
+        </div>
+      </div>
+      <div class="hott-token">
+        <div class="token-info">
+          <h3><span class="token-symbol">$HOTT</span> TOKEN</h3>
+          <p>100,000,000 total supply. Governance rights, fee discounts, staking rewards, exclusive access.</p>
+        </div>
+        <div class="token-dist">
+          <div class="dist-bar"><span style="width:40%" class="d1"></span><span style="width:25%" class="d2"></span><span style="width:20%" class="d3"></span><span style="width:10%" class="d4"></span><span style="width:5%" class="d5"></span></div>
+          <div class="dist-legend">
+            <span><em class="l1"></em>40% Community</span>
+            <span><em class="l2"></em>25% Artists</span>
+            <span><em class="l3"></em>20% Dev</span>
+            <span><em class="l4"></em>10% Team</span>
+            <span><em class="l5"></em>5% Liquidity</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ARTIST APPLY FORM
+  ============================================================ -->
+  <section class="section apply-section" id="apply">
+    <div class="section-header">
+      <span class="section-label">// ARTIST ONBOARDING</span>
+      <h2>APPLY AS AN ARTIST</h2>
+      <p>Limited to 50 founding artists. 85% revenue share. No lock-in. Powered by HD2.ai.</p>
+    </div>
+    <div class="apply-wrap">
+      <div class="apply-benefits">
+        <h3>FOUNDING ARTIST BENEFITS</h3>
+        <ul class="benefits-list">
+          <li><span class="check">✓</span> Founding Artist NFT Badge (exclusive)</li>
+          <li><span class="check">✓</span> Lifetime 10% platform fee (save 5% forever)</li>
+          <li><span class="check">✓</span> Priority event access — London &amp; Vienna</li>
+          <li><span class="check">✓</span> Direct white-glove support from HD2.ai</li>
+          <li><span class="check">✓</span> $HOTT governance token airdrop</li>
+          <li><span class="check">✓</span> Featured in all launch marketing</li>
+          <li><span class="check">✓</span> 85% primary sales revenue</li>
+          <li><span class="check">✓</span> Perpetual on-chain royalties</li>
+        </ul>
+        <div class="founding-counter">
+          <span class="counter-n">37</span>
+          <span class="counter-l">/ 50 slots remaining</span>
+        </div>
+      </div>
+      <div class="apply-form-wrap">
+        <form class="apply-form" id="applyForm" onsubmit="submitApplication(event)">
+          <div class="form-row">
+            <label>ARTIST / STAGE NAME *</label>
+            <input type="text" id="app-name" placeholder="Your artist name" required />
+          </div>
+          <div class="form-row">
+            <label>EMAIL ADDRESS *</label>
+            <input type="email" id="app-email" placeholder="artists@yourdomain.com" required />
+          </div>
+          <div class="form-row">
+            <label>PRIMARY GENRE *</label>
+            <select id="app-style" required>
+              <option value="">-- SELECT GENRE --</option>
+              <option value="Dubstep">Dubstep</option>
+              <option value="Jungle">Jungle</option>
+              <option value="DnB">Drum &amp; Bass</option>
+              <option value="Reggae">Reggae</option>
+              <option value="Dancehall">Dancehall</option>
+              <option value="Hip-Hop">Hip-Hop</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>MUSIC LINKS (SoundCloud, Spotify, Bandcamp...)</label>
+            <textarea id="app-links" placeholder="Paste your links here, one per line" rows="3"></textarea>
+          </div>
+          <div class="form-row">
+            <label>SHORT BIO</label>
+            <textarea id="app-bio" placeholder="Tell us about your sound, your story, your vision..." rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn-primary btn-full" id="apply-btn">
+            <span id="apply-btn-text">SUBMIT APPLICATION</span>
+          </button>
+        </form>
+        <!-- Application result -->
+        <div class="apply-result" id="applyResult" style="display:none;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       GALLERY STRIP
+  ============================================================ -->
+  <section class="gallery-strip">
+    <div class="marquee-wrap">
+      <div class="marquee-track">
+        <span>DUBSTEP</span><span>◈</span>
+        <span>JUNGLE</span><span>◈</span>
+        <span>DnB</span><span>◈</span>
+        <span>REGGAE</span><span>◈</span>
+        <span>DANCEHALL</span><span>◈</span>
+        <span>HIP-HOP</span><span>◈</span>
+        <span>WEB3</span><span>◈</span>
+        <span>NFT</span><span>◈</span>
+        <span>DAO</span><span>◈</span>
+        <span>$HOTT</span><span>◈</span>
+        <!-- Duplicate for seamless loop -->
+        <span>DUBSTEP</span><span>◈</span>
+        <span>JUNGLE</span><span>◈</span>
+        <span>DnB</span><span>◈</span>
+        <span>REGGAE</span><span>◈</span>
+        <span>DANCEHALL</span><span>◈</span>
+        <span>HIP-HOP</span><span>◈</span>
+        <span>WEB3</span><span>◈</span>
+        <span>NFT</span><span>◈</span>
+        <span>DAO</span><span>◈</span>
+        <span>$HOTT</span><span>◈</span>
+      </div>
+    </div>
+    <div class="gallery-imgs">
+      <div class="gimg"><img src="public/gallery-1.jpg" alt="Gallery" /></div>
+      <div class="gimg"><img src="public/gallery-2.jpg" alt="Gallery" /></div>
+      <div class="gimg"><img src="public/gallery-3.jpg" alt="Gallery" /></div>
+      <div class="gimg"><img src="public/gallery-4.jpg" alt="Gallery" /></div>
+      <div class="gimg"><img src="public/gallery-5.jpg" alt="Gallery" /></div>
+      <div class="gimg"><img src="public/gallery-6.jpg" alt="Gallery" /></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       EVENTS
+  ============================================================ -->
+  <section class="section events-section" id="events">
+    <div class="section-header">
+      <span class="section-label">// LIVE EVENTS</span>
+      <h2>NFT HOLDER EVENTS</h2>
+      <p>Free entry with any Hottdrop NFT. London &amp; Vienna.</p>
+    </div>
+    <div class="events-grid">
+      <div class="event-card">
+        <div class="event-img">
+          <img src="public/event-london.jpg" alt="London Event" onerror="this.parentElement.classList.add('img-fallback')" />
+          <span class="event-status">UPCOMING</span>
+        </div>
+        <div class="event-info">
+          <div class="event-date">2025.09.13 / 22:00</div>
+          <h3>BASS SUMMIT LONDON</h3>
+          <p>Shoreditch / London, UK</p>
+          <div class="event-meta">
+            <span>Free with NFT</span>
+            <span>18+ event</span>
+          </div>
+        </div>
+      </div>
+      <div class="event-card">
+        <div class="event-img">
+          <img src="public/event-vienna.jpg" alt="Vienna Event" onerror="this.parentElement.classList.add('img-fallback')" />
+          <span class="event-status event-status-amber">ON SALE</span>
+        </div>
+        <div class="event-info">
+          <div class="event-date">2025.11.22 / 21:00</div>
+          <h3>HOTTDROP VIENNA</h3>
+          <p>Flex Club / Vienna, AT</p>
+          <div class="event-meta">
+            <span>Free with NFT</span>
+            <span>Limited capacity</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer" id="contact">
+    <div class="footer-portrait">
+      <img src="public/artist-portrait.jpg" alt="Artist" />
+      <div class="footer-portrait-overlay"></div>
+      <div class="footer-portrait-text">
+        <h2>OWN YOUR SOUND</h2>
+        <p>The future of music is on-chain.</p>
+      </div>
+    </div>
+    <div class="footer-main">
+      <div class="footer-col">
+        <img src="public/logo-white.png" alt="Hottdrop" class="footer-logo" onerror="this.style.display='none'" />
+        <p class="footer-desc">Fuse music, art, events &amp; Web3. Empower artists globally via smart contracts &amp; NFTs.</p>
+        <div class="footer-social">
+          <a href="https://twitter.com/hottdrop" target="_blank" rel="noopener" aria-label="Twitter">𝕏</a>
+          <a href="https://instagram.com/hottdrop" target="_blank" rel="noopener" aria-label="Instagram">◉</a>
+          <a href="https://discord.gg/hottdrop" target="_blank" rel="noopener" aria-label="Discord">⬡</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>PLATFORM</h4>
+        <a href="#drops"    onclick="scrollToSection('drops'); return false;">NFT Drops</a>
+        <a href="#terminal" onclick="scrollToSection('terminal'); return false;">AI Studio</a>
+        <a href="#dao"      onclick="scrollToSection('dao'); return false;">Genre DAOs</a>
+        <a href="#events"   onclick="scrollToSection('events'); return false;">Events</a>
+      </div>
+      <div class="footer-col">
+        <h4>ARTISTS</h4>
+        <a href="#apply"    onclick="scrollToSection('apply'); return false;">Apply Now</a>
+        <a href="mailto:artists@hottdrop.io">artists@hottdrop.io</a>
+        <a href="https://discord.gg/hottdrop" target="_blank" rel="noopener">Discord</a>
+      </div>
+      <div class="footer-col">
+        <h4>NEWSLETTER</h4>
+        <p class="footer-desc">Be first to know about new drops and events.</p>
+        <div class="newsletter">
+          <input type="email" id="newsletter-email" placeholder="your@email.com" />
+          <button onclick="subscribeNewsletter()">JOIN</button>
+        </div>
+        <p class="footer-power">Powered by <strong>HD2.ai</strong></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Hottdrop. All rights reserved.</span>
+      <span>London • Vienna • Global</span>
+      <span>Powered by <a href="https://hd2.ai" target="_blank" rel="noopener">HD2.ai</a></span>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       MINT MODAL
+  ============================================================ -->
+  <div class="modal-overlay" id="mintModal" onclick="closeMintModal(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeMintModal()">✕</button>
+      <div class="modal-content" id="mintModalContent">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION
+  ============================================================ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.1/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
