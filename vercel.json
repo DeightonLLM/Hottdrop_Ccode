@@ -8,8 +8,18 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/generate-release",
       "dest": "/server.js"
-    }
+    },
+    {
+      "src": "/artist-onboard",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/create-drop",
+      "dest": "/server.js"
+    },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
