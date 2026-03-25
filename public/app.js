@@ -764,4 +764,312 @@ document.addEventListener("DOMContentLoaded", () => {
   decodeText();
   initScrollAnimations();
   initProgressBars();
+  // Pre-fill wallet into Revenue tab when connected
+  const walletObs = setInterval(() => {
+    const revWallet = document.getElementById("rev-wallet");
+    if (revWallet && walletAddress && !revWallet.value) {
+      revWallet.value = walletAddress;
+    }
+  }, 2000);
 });
+
+// ============================================================
+// UTILITY — switch tab by ID (for nav links)
+// ============================================================
+function switchTabById(tabName) {
+  const btn = document.querySelector(`[data-tab="${tabName}"]`);
+  if (btn) switchTab(tabName, btn);
+}
+
+// ============================================================
+// ARTWORK STUDIO — AI/Human toggle
+// ============================================================
+let artworkAiMode = true;
+let selectedPalette = "#0a0a1f";
+
+function setArtworkMode(isAI) {
+  artworkAiMode = isAI;
+  document.getElementById("toggle-ai").classList.toggle("active", isAI);
+  document.getElementById("toggle-human").classList.toggle("active", !isAI);
+  const badge = document.getElementById("ai-badge");
+  const disclaimer = document.getElementById("aiDisclaimer");
+  const btnText = document.getElementById("art-btn-text");
+  if (isAI) {
+    badge.style.display = "inline-block";
+    disclaimer.style.display = "block";
+    btnText.textContent = "🎨 GENERATE ARTWORK";
+  } else {
+    badge.style.display = "none";
+    disclaimer.style.display = "none";
+    btnText.textContent = "📎 UPLOAD HUMAN ARTWORK";
+    showToast("Human artwork mode — label will read HUMAN MADE in NFT metadata.", "info");
+  }
+}
+
+function selectPalette(el) {
+  document.querySelectorAll(".swatch").forEach(s => s.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedPalette = el.dataset.colour;
+}
+
+// ============================================================
+// ARTWORK STUDIO — Generate
+// ============================================================
+async function generateArtwork() {
+  const track   = document.getElementById("art-track").value.trim();
+  const artist  = document.getElementById("art-artist").value.trim();
+  const style   = document.getElementById("art-style").value;
+  const mood    = document.getElementById("art-mood").value;
+
+  if (!style || !mood) {
+    showToast("Please select a Visual Style and Mood.", "error");
+    return;
+  }
+
+  const btn    = document.getElementById("art-btn");
+  const btnTxt = document.getElementById("art-btn-text");
+  const output = document.getElementById("artwork-output");
+
+  btn.disabled = true;
+  btnTxt.innerHTML = `<span class="spinner"></span> GENERATING...`;
+  output.innerHTML = `<div class="output-placeholder"><span class="cursor-blink">_</span> Sending to HD2.ai image pipeline...</div>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/generate-artwork`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ style, mood, palette: selectedPalette, track_name: track, artist_name: artist, ai_assist: artworkAiMode }),
+    });
+    const { data } = await res.json();
+
+    const isLive = data.generation_status === "GENERATED";
+    const aiLabelColor = artworkAiMode ? "var(--amber)" : "var(--green)";
+    const aiLabelIcon  = artworkAiMode ? "⚠" : "✓";
+
+    output.innerHTML = `
+<div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+  <span class="output-key">// ARTWORK GENERATED</span>
+  <span style="color:${aiLabelColor}; font-size:11px; font-weight:bold; border:1px solid ${aiLabelColor}; padding:2px 8px; border-radius:2px;">${aiLabelIcon} ${data.ai_label}</span>
+</div>
+
+${isLive ? `
+<div class="artwork-canvas">
+  <img src="${data.image_url}" alt="Generated artwork" style="width:100%; border-radius:4px; display:block;" />
+</div>
+` : `
+<div class="artwork-canvas artwork-fallback">
+  <div class="artwork-placeholder" style="background: linear-gradient(135deg, ${selectedPalette}dd, #000);">
+    <div style="text-align:center;">
+      <div style="font-size:40px; margin-bottom:12px;">🎨</div>
+      <div style="font-size:11px; letter-spacing:0.12em; color:var(--cyan);">PROMPT READY</div>
+      <div style="font-size:10px; color:var(--muted); margin-top:8px; max-width:260px; line-height:1.5;">Add REPLICATE_API_TOKEN to .env to activate live generation</div>
+    </div>
+  </div>
+</div>
+`}
+
+<div style="margin-top:16px;">
+  <div style="font-size:10px; color:var(--muted); margin-bottom:4px;">PROMPT USED</div>
+  <div style="font-size:11px; color:var(--text); background:rgba(0,0,0,0.3); padding:10px; border-radius:4px; line-height:1.6; border-left:2px solid var(--cyan-dim);">
+    ${data.prompt_used}
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; font-size:11px;">
+  <div>
+    <div style="color:var(--muted); font-size:10px;">STYLE</div>
+    <div style="color:var(--cyan);">${data.style}</div>
+  </div>
+  <div>
+    <div style="color:var(--muted); font-size:10px;">MOOD</div>
+    <div style="color:var(--cyan);">${data.mood}</div>
+  </div>
+  <div>
+    <div style="color:var(--muted); font-size:10px;">NFT ATTRIBUTE</div>
+    <div style="color:${aiLabelColor};">${data.nft_attribute.value}</div>
+  </div>
+  <div>
+    <div style="color:var(--muted); font-size:10px;">STATUS</div>
+    <div style="color:var(--green);">${data.generation_status}</div>
+  </div>
+</div>
+
+${isLive ? `
+<div style="display:flex; gap:8px; margin-top:16px;">
+  <a href="${data.image_url}" download="hottdrop-artwork.png" class="btn-terminal" style="text-decoration:none; font-size:11px; padding:8px 16px;">⬇ DOWNLOAD</a>
+  <button class="btn-terminal" style="font-size:11px; padding:8px 16px;" onclick="attachArtworkToDrop('${data.image_url}')">◈ ATTACH TO DROP</button>
+</div>
+` : `<div style="margin-top:12px;"><button class="btn-terminal" style="font-size:11px; padding:8px 16px; opacity:0.5;" disabled>ADD API KEY TO ENABLE GENERATION</button></div>`}
+
+<div style="font-size:10px; color:var(--muted); margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
+  Powered by <a href="https://hd2.ai" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">HD2.ai</a> | ${data.generated_at}
+</div>
+    `;
+    showToast(isLive ? "Artwork generated!" : "Prompt ready — add Replicate key to generate images.", isLive ? "success" : "info");
+  } catch (err) {
+    output.innerHTML = `<div class="output-err">ERROR: ${err.message}</div>`;
+    showToast("Artwork generation failed", "error");
+  } finally {
+    btn.disabled = false;
+    btnTxt.textContent = artworkAiMode ? "🎨 GENERATE ARTWORK" : "📎 UPLOAD HUMAN ARTWORK";
+  }
+}
+
+/** Attach generated artwork URL to the NFT drop tab */
+function attachArtworkToDrop(imageUrl) {
+  // Store for use in mint flow
+  window._hottdropArtworkUrl = imageUrl;
+  switchTabById("nft");
+  showToast("Artwork attached to your next drop! 🎨", "success");
+}
+
+// ============================================================
+// DAO AGENT — Analyse Proposal
+// ============================================================
+async function submitDAOProposal() {
+  const proposal = document.getElementById("dao-proposal").value.trim();
+  const daoName  = document.getElementById("dao-select").value;
+
+  if (!proposal) { showToast("Please enter a proposal to analyse.", "error"); return; }
+
+  const btn    = document.querySelector("#tab-dao-agent .btn-terminal");
+  const btnTxt = document.getElementById("dao-btn-text");
+  const output = document.getElementById("dao-output");
+
+  btn.disabled = true;
+  btnTxt.innerHTML = `<span class="spinner"></span> AGENT ANALYSING...`;
+  output.innerHTML = `<div class="output-placeholder"><span class="cursor-blink">_</span> DAO Agent reading proposal...</div>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/dao-agent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ proposal_text: proposal, dao_name: daoName }),
+    });
+    const { data } = await res.json();
+
+    output.innerHTML = `
+<div style="margin-bottom:12px;">
+  <span class="output-key">// ${data.dao_name} — PROPOSAL ANALYSIS</span>
+  <span style="color:var(--muted); font-size:10px; float:right;">${data.proposal_id}</span>
+</div>
+
+<div style="margin-bottom:16px;">
+  <div style="font-size:10px; letter-spacing:0.14em; color:var(--muted); margin-bottom:8px;">SUMMARY</div>
+  ${data.proposal_summary.map((b, i) => `
+    <div style="display:flex; gap:10px; margin-bottom:7px; align-items:flex-start; font-size:12px; color:var(--text);">
+      <span style="color:var(--cyan); flex-shrink:0;">${["①","②","③"][i]}</span>
+      <span style="line-height:1.5;">${b}</span>
+    </div>
+  `).join("")}
+</div>
+
+<div style="background:rgba(0,212,255,0.06); border:1px solid var(--cyan-dim); border-radius:4px; padding:14px; margin-bottom:14px;">
+  <div style="font-size:10px; letter-spacing:0.14em; color:var(--muted); margin-bottom:6px;">AGENT RECOMMENDATION</div>
+  <div style="font-size:13px; color:var(--cyan); line-height:1.6;">${data.recommendation}</div>
+</div>
+
+<div style="background:rgba(0,0,0,0.3); border-radius:4px; padding:14px; margin-bottom:14px; border-left:2px solid var(--amber);">
+  <div style="font-size:10px; letter-spacing:0.14em; color:var(--muted); margin-bottom:6px;">COMMUNITY ANNOUNCEMENT</div>
+  <div style="font-size:12px; color:var(--text); line-height:1.6;">${data.community_announcement}</div>
+  <button class="copy-btn" style="margin-top:8px;" onclick="copyText(this, \`${data.community_announcement.replace(/`/g,'\\`')}\`)">COPY FOR DISCORD</button>
+</div>
+
+<div style="font-size:10px; color:var(--muted); padding-top:12px; border-top:1px solid var(--border);">
+  Powered by <a href="https://hd2.ai" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">HD2.ai</a> | ${new Date(data.generated_at).toLocaleString()}
+</div>
+    `;
+    showToast("Proposal analysed!", "success");
+  } catch (err) {
+    output.innerHTML = `<div class="output-err">ERROR: ${err.message}</div>`;
+    showToast("DAO Agent failed", "error");
+  } finally {
+    btn.disabled = false;
+    btnTxt.textContent = "📊 ANALYSE PROPOSAL";
+  }
+}
+
+// ============================================================
+// REVENUE AGENT — Load Royalty Report
+// ============================================================
+async function loadRevenueReport() {
+  const artist  = document.getElementById("rev-artist").value.trim();
+  const wallet  = document.getElementById("rev-wallet").value.trim() || walletAddress;
+  const royalty = document.getElementById("rev-royalty").value;
+
+  if (!wallet) {
+    showToast("Connect your wallet or paste a wallet address.", "info");
+    connectWallet();
+    return;
+  }
+
+  const btn    = document.querySelector("#tab-revenue .btn-terminal");
+  const btnTxt = document.getElementById("rev-btn-text");
+  const output = document.getElementById("revenue-output");
+
+  btn.disabled = true;
+  btnTxt.innerHTML = `<span class="spinner"></span> LOADING REPORT...`;
+  output.innerHTML = `<div class="output-placeholder"><span class="cursor-blink">_</span> Revenue Agent querying on-chain data...</div>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/revenue-agent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet_address: wallet, artist_name: artist, royalty_percent: royalty }),
+    });
+    const { data } = await res.json();
+    const e = data.earnings;
+
+    output.innerHTML = `
+<div style="margin-bottom:16px;">
+  <span class="output-key">// ROYALTY REPORT — ${data.period.toUpperCase()}</span>
+</div>
+
+<div style="background:rgba(0,255,133,0.04); border:1px solid rgba(0,255,133,0.2); border-radius:4px; padding:16px; margin-bottom:16px;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:12px;">
+    <div>
+      <div style="color:var(--muted); font-size:10px; margin-bottom:3px;">ARTIST TOTAL EARNED</div>
+      <div style="color:var(--green); font-size:18px; font-weight:bold;">${e.artist_total_eth} ETH</div>
+    </div>
+    <div>
+      <div style="color:var(--muted); font-size:10px; margin-bottom:3px;">PENDING PAYOUT</div>
+      <div style="color:var(--amber); font-size:18px; font-weight:bold;">${data.pending_payout_eth} ETH</div>
+    </div>
+    <div>
+      <div style="color:var(--muted); font-size:10px; margin-bottom:3px;">PRIMARY SALES</div>
+      <div style="color:var(--cyan);">${e.primary_sales_eth} ETH</div>
+    </div>
+    <div>
+      <div style="color:var(--muted); font-size:10px; margin-bottom:3px;">ROYALTIES ON RESALE</div>
+      <div style="color:var(--cyan);">${e.secondary_royalties_eth} ETH</div>
+    </div>
+    <div>
+      <div style="color:var(--muted); font-size:10px; margin-bottom:3px;">PLATFORM SHARE</div>
+      <div style="color:var(--muted);">${e.platform_share_eth} ETH (15%)</div>
+    </div>
+    <div>
+      <div style="color:var(--muted); font-size:10px; margin-bottom:3px;">ROYALTY RATE</div>
+      <div style="color:var(--green);">${data.royalty_rate}</div>
+    </div>
+  </div>
+</div>
+
+<div style="background:rgba(0,0,0,0.3); border-left:2px solid var(--green); border-radius:4px; padding:14px; margin-bottom:14px;">
+  <div style="font-size:10px; letter-spacing:0.14em; color:var(--muted); margin-bottom:6px;">AGENT SUMMARY</div>
+  <div style="font-size:12px; color:var(--text); line-height:1.7;">${data.report_summary}</div>
+</div>
+
+<div style="font-size:11px; color:var(--muted); display:flex; justify-content:space-between; padding-top:12px; border-top:1px solid var(--border);">
+  <span>Next distribution: <span style="color:var(--amber);">${data.next_distribution}</span></span>
+  <span>Powered by <a href="https://hd2.ai" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">HD2.ai</a></span>
+</div>
+    `;
+    showToast("Revenue report loaded!", "success");
+  } catch (err) {
+    output.innerHTML = `<div class="output-err">ERROR: ${err.message}</div>`;
+    showToast("Revenue Agent failed", "error");
+  } finally {
+    btn.disabled = false;
+    btnTxt.textContent = "💰 LOAD ROYALTY REPORT";
+  }
+}

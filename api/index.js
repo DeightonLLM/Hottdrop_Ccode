@@ -205,6 +205,257 @@ app.post("/create-drop", (req, res) => {
   });
 });
 
+// ============================================================
+// LLM HELPER — shared by all agents
+// Supports OpenAI and Gemini. Falls back gracefully.
+// Set OPENAI_API_KEY or GEMINI_API_KEY in .env
+// ============================================================
+require("dotenv").config();
+const https = require("https");
+
+async function callLLM(systemPrompt, userPrompt) {
+  const openaiKey = process.env.OPENAI_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY;
+
+  if (openaiKey) {
+    return new Promise((resolve, reject) => {
+      const body = JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        max_tokens: 800,
+        temperature: 0.8,
+      });
+      const req = https.request(
+        { hostname: "api.openai.com", path: "/v1/chat/completions", method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${openaiKey}`, "Content-Length": Buffer.byteLength(body) } },
+        (res) => {
+          let data = "";
+          res.on("data", (c) => (data += c));
+          res.on("end", () => {
+            try { resolve(JSON.parse(data).choices[0].message.content.trim()); }
+            catch { reject(new Error("OpenAI parse error")); }
+          });
+        }
+      );
+      req.on("error", reject);
+      req.write(body);
+      req.end();
+    });
+  }
+
+  if (geminiKey) {
+    return new Promise((resolve, reject) => {
+      const body = JSON.stringify({
+        contents: [{ parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }],
+        generationConfig: { maxOutputTokens: 800, temperature: 0.8 },
+      });
+      const path = `/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+      const req = https.request(
+        { hostname: "generativelanguage.googleapis.com", path, method: "POST",
+          headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) } },
+        (res) => {
+          let data = "";
+          res.on("data", (c) => (data += c));
+          res.on("end", () => {
+            try { resolve(JSON.parse(data).candidates[0].content.parts[0].text.trim()); }
+            catch { reject(new Error("Gemini parse error")); }
+          });
+        }
+      );
+      req.on("error", reject);
+      req.write(body);
+      req.end();
+    });
+  }
+
+  return null; // No key — caller falls back to template logic
+}
+
+// ============================================================
+// ENDPOINT: POST /dao-agent
+// Summarises a DAO proposal and generates community messaging
+// ============================================================
+app.post("/dao-agent", async (req, res) => {
+  const { proposal_text, dao_name } = req.body;
+  if (!proposal_text) return res.status(400).json({ error: "Missing proposal_text" });
+
+  const dao = dao_name || "Hottdrop DAO";
+  let summary, recommendation, announcement;
+
+  const llmResult = await callLLM(
+    `You are the AI agent for ${dao}, a Web3 music DAO on Hottdrop. You help members understand proposals clearly and vote with confidence.`,
+    `Summarise this proposal in exactly 3 bullet points (each max 15 words), give a one-sentence recommendation (for/against/neutral + reason), and write a 2-sentence Discord announcement. Proposal: "${proposal_text}"\n\nRespond as valid JSON: { "bullets": ["...","...","..."], "recommendation": "...", "announcement": "..." }`
+  ).catch(() => null);
+
+  if (llmResult) {
+    try {
+      const parsed = JSON.parse(llmResult.replace(/```json|```/g, "").trim());
+      summary = parsed.bullets;
+      recommendation = parsed.recommendation;
+      announcement = parsed.announcement;
+    } catch {
+      // LLM returned not-JSON — use fallback
+    }
+  }
+
+  // Fallback
+  if (!summary) {
+    const words = proposal_text.split(" ").slice(0, 6).join(" ");
+    summary = [
+      `Proposal: ${words}...`,
+      `Affects ${dao} treasury and governance rights`,
+      `Requires majority vote by token holders`,
+    ];
+    recommendation = "Review carefully — impact on community treasury requires full member discussion.";
+    announcement = `📋 New proposal live in ${dao}: "${words}..." — cast your vote now. All $HOTT holders can participate. Powered by HD2.ai.`;
+  }
+
+  return res.json({
+    success: true,
+    data: {
+      dao_name: dao,
+      proposal_summary: summary,
+      recommendation,
+      community_announcement: announcement,
+      proposal_id: `PROP-${Date.now().toString(36).toUpperCase()}`,
+      generated_at: new Date().toISOString(),
+      powered_by: "HD2.ai",
+    },
+  });
+});
+
+// ============================================================
+// ENDPOINT: POST /revenue-agent
+// Tracks royalties and generates a distribution report
+// ============================================================
+app.post("/revenue-agent", async (req, res) => {
+  const { wallet_address, artist_name, royalty_percent } = req.body;
+  if (!wallet_address) return res.status(400).json({ error: "Missing wallet_address" });
+
+  const royalty = parseFloat(royalty_percent) || 15;
+  const artist = artist_name || "Artist";
+
+  // Simulated on-chain earnings data (replace with Alchemy/Moralis in phase 2)
+  const primarySales  = parseFloat((Math.random() * 4 + 0.5).toFixed(4));
+  const secondarySales = parseFloat((Math.random() * 1.5 + 0.1).toFixed(4));
+  const royaltyEarned = parseFloat(((secondarySales * royalty) / 100).toFixed(4));
+  const totalEarned   = parseFloat((primarySales * 0.85 + royaltyEarned).toFixed(4));
+  const pendingPayout = parseFloat((totalEarned * 0.3).toFixed(4));
+
+  let reportSummary;
+  const llmResult = await callLLM(
+    `You are the Revenue Agent for Hottdrop, a Web3 music label. You write clear, encouraging royalty reports for artists.`,
+    `Write a 2-sentence royalty report summary for artist "${artist}". They earned ${totalEarned} ETH total (${primarySales} ETH primary sales, ${royaltyEarned} ETH royalties). Keep it punchy and positive. No markdown.`
+  ).catch(() => null);
+
+  reportSummary = llmResult || `${artist} has earned ${totalEarned} ETH across primary sales and on-chain royalties this period. ${pendingPayout} ETH is pending distribution to your wallet — powered by HD2.ai smart contracts.`;
+
+  return res.json({
+    success: true,
+    data: {
+      wallet: wallet_address,
+      artist: artist,
+      period: "Last 30 days",
+      earnings: {
+        primary_sales_eth: primarySales,
+        secondary_royalties_eth: royaltyEarned,
+        platform_share_eth: parseFloat((primarySales * 0.15).toFixed(4)),
+        artist_total_eth: totalEarned,
+      },
+      pending_payout_eth: pendingPayout,
+      royalty_rate: `${royalty}%`,
+      next_distribution: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      report_summary: reportSummary,
+      powered_by: "HD2.ai",
+    },
+  });
+});
+
+// ============================================================
+// ENDPOINT: POST /generate-artwork
+// Generates cover art via Replicate (Flux) or returns prompt metadata
+// Set REPLICATE_API_TOKEN in .env to activate real generation
+// ============================================================
+app.post("/generate-artwork", async (req, res) => {
+  const { style, mood, palette, track_name, artist_name, ai_assist } = req.body;
+  if (!style || !mood) return res.status(400).json({ error: "Missing style or mood" });
+
+  const track = track_name || "Untitled";
+  const artist = artist_name || "Artist";
+  const isAI = ai_assist !== false; // default true for this endpoint
+
+  // Build the image generation prompt
+  const promptParts = [
+    `Album cover art for "${track}" by ${artist}`,
+    `Style: ${style}`,
+    `Mood: ${mood}`,
+    palette ? `Colour palette: ${palette}` : null,
+    "High resolution, no text, no words, professional music artwork",
+    "Ultra detailed, cinematic lighting",
+  ].filter(Boolean);
+  const imagePrompt = promptParts.join(". ");
+
+  const replicateToken = process.env.REPLICATE_API_TOKEN;
+  let imageUrl = null;
+  let generationStatus = "FALLBACK";
+
+  if (replicateToken) {
+    try {
+      // Kick off Replicate prediction (black-forest-labs/flux-schnell)
+      const startBody = JSON.stringify({
+        version: "black-forest-labs/flux-schnell",
+        input: { prompt: imagePrompt, aspect_ratio: "1:1", output_quality: 90 },
+      });
+      const prediction = await new Promise((resolve, reject) => {
+        const req2 = https.request(
+          { hostname: "api.replicate.com", path: "/v1/models/black-forest-labs/flux-schnell/predictions",
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Token ${replicateToken}`, "Content-Length": Buffer.byteLength(startBody) } },
+          (r) => { let d = ""; r.on("data", c => d += c); r.on("end", () => { try { resolve(JSON.parse(d)); } catch { reject(new Error("Replicate parse error")); } }); }
+        );
+        req2.on("error", reject); req2.write(startBody); req2.end();
+      });
+
+      // Poll for result (max 30s)
+      const pollUrl = `/v1/predictions/${prediction.id}`;
+      for (let i = 0; i < 15; i++) {
+        await new Promise(r => setTimeout(r, 2000));
+        const poll = await new Promise((resolve, reject) => {
+          const r = https.request(
+            { hostname: "api.replicate.com", path: pollUrl, method: "GET",
+              headers: { Authorization: `Token ${replicateToken}` } },
+            (res2) => { let d = ""; res2.on("data", c => d += c); res2.on("end", () => { try { resolve(JSON.parse(d)); } catch { reject(); } }); }
+          );
+          r.on("error", reject); r.end();
+        });
+        if (poll.status === "succeeded") { imageUrl = poll.output?.[0] || poll.output; generationStatus = "GENERATED"; break; }
+        if (poll.status === "failed") break;
+      }
+    } catch (e) {
+      console.error("Replicate error:", e.message);
+    }
+  }
+
+  return res.json({
+    success: true,
+    data: {
+      image_url: imageUrl,
+      generation_status: generationStatus,
+      prompt_used: imagePrompt,
+      style, mood, palette: palette || null,
+      track_name: track,
+      artist_name: artist,
+      ai_label: isAI ? "AI ASSISTED" : "HUMAN UPLOAD",
+      nft_attribute: isAI ? { trait_type: "Artwork", value: "AI Assisted" } : { trait_type: "Artwork", value: "Human Made" },
+      generated_at: new Date().toISOString(),
+      powered_by: "HD2.ai",
+    },
+  });
+});
+
 // Export the app for Vercel
 module.exports = app;
 

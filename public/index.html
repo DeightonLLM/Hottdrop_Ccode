@@ -29,6 +29,7 @@
         <a href="#terminal" onclick="scrollToSection('terminal'); return false;">AI STUDIO</a>
         <a href="#dao"      onclick="scrollToSection('dao'); return false;">DAO</a>
         <a href="#apply"    onclick="scrollToSection('apply'); return false;">APPLY</a>
+        <a href="#terminal" onclick="scrollToSection('terminal'); switchTabById('artwork'); return false;">ARTWORK</a>
       </div>
       <div class="nav-right">
         <button class="btn-wallet" id="walletBtn" onclick="connectWallet()">
@@ -197,10 +198,19 @@
       <!-- Tab bar -->
       <div class="terminal-tabs">
         <button class="tab-btn active" data-tab="release" onclick="switchTab('release', this)">
-          ⚡ GENERATE RELEASE PACK
+          ⚡ RELEASE AGENT
         </button>
         <button class="tab-btn" data-tab="nft" onclick="switchTab('nft', this)">
-          ◈ CREATE NFT DROP
+          ◈ MINT DROP
+        </button>
+        <button class="tab-btn" data-tab="artwork" id="tab-btn-artwork" onclick="switchTab('artwork', this)">
+          🎨 ARTWORK STUDIO
+        </button>
+        <button class="tab-btn" data-tab="dao-agent" onclick="switchTab('dao-agent', this)">
+          📊 DAO AGENT
+        </button>
+        <button class="tab-btn" data-tab="revenue" onclick="switchTab('revenue', this)">
+          💰 REVENUE
         </button>
       </div>
 
@@ -282,6 +292,152 @@
           </div>
         </div>
       </div>
+
+      <!-- Tab: Artwork Studio -->
+      <div class="tab-panel" id="tab-artwork">
+        <div class="terminal-body">
+          <div class="terminal-topbar">
+            <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+            <span class="terminal-title">hottdrop@hd2ai:~$ generate-artwork</span>
+            <span class="ai-mode-badge" id="ai-badge">⚠ AI ASSIST ON</span>
+          </div>
+          <div class="terminal-form">
+            <div class="form-row">
+              <label>TRACK NAME</label>
+              <input type="text" id="art-track" placeholder="e.g. Bassline Protocol" />
+            </div>
+            <div class="form-row">
+              <label>ARTIST NAME</label>
+              <input type="text" id="art-artist" placeholder="e.g. DJ Voltage" />
+            </div>
+            <div class="form-row">
+              <label>VISUAL STYLE</label>
+              <select id="art-style">
+                <option value="">-- SELECT STYLE --</option>
+                <option value="Abstract Digital">Abstract Digital</option>
+                <option value="Glitch Art">Glitch Art</option>
+                <option value="Psychedelic">Psychedelic</option>
+                <option value="Street / Urban">Street / Urban</option>
+                <option value="Minimal Dark">Minimal Dark</option>
+                <option value="3D Render">3D Render</option>
+                <option value="Cyberpunk">Cyberpunk</option>
+                <option value="Sacred Geometry">Sacred Geometry</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>MOOD</label>
+              <select id="art-mood">
+                <option value="">-- SELECT MOOD --</option>
+                <option value="Dark & Intense">Dark &amp; Intense</option>
+                <option value="Euphoric">Euphoric</option>
+                <option value="Raw & Underground">Raw &amp; Underground</option>
+                <option value="Spiritual">Spiritual</option>
+                <option value="Cinematic">Cinematic</option>
+                <option value="Dreamlike">Dreamlike</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>COLOUR PALETTE (optional)</label>
+              <div class="palette-picker" id="palettePicker">
+                <div class="swatch selected" data-colour="#0a0a1f" style="background:#0a0a1f" title="Deep Space" onclick="selectPalette(this)"></div>
+                <div class="swatch" data-colour="#1a0a2e" style="background:#1a0a2e" title="Void Purple" onclick="selectPalette(this)"></div>
+                <div class="swatch" data-colour="#001a0a" style="background:#001a0a" title="Night Jungle" onclick="selectPalette(this)"></div>
+                <div class="swatch" data-colour="#2e1a00" style="background:#2e1a00" title="Amber Dusk" onclick="selectPalette(this)"></div>
+                <div class="swatch" data-colour="#ff6600" style="background:#ff6600" title="Lava" onclick="selectPalette(this)"></div>
+                <div class="swatch" data-colour="#00d4ff" style="background:#00d4ff" title="Cyan Electric" onclick="selectPalette(this)"></div>
+                <div class="swatch" data-colour="#ff0077" style="background:#ff0077" title="Neon Pink" onclick="selectPalette(this)"></div>
+                <div class="swatch" data-colour="#39ff14" style="background:#39ff14" title="Acid Green" onclick="selectPalette(this)"></div>
+              </div>
+            </div>
+            <div class="form-row ai-toggle-row">
+              <label>ARTWORK SOURCE</label>
+              <div class="toggle-group">
+                <button class="toggle-btn active" id="toggle-ai" onclick="setArtworkMode(true)">🤖 AI GENERATE</button>
+                <button class="toggle-btn" id="toggle-human" onclick="setArtworkMode(false)">👤 HUMAN UPLOAD</button>
+              </div>
+              <div class="ai-disclaimer" id="aiDisclaimer">Art will be clearly labelled <strong>AI ASSISTED</strong> in the NFT metadata. Human artists always preferred.</div>
+            </div>
+            <button class="btn-terminal" onclick="generateArtwork()" id="art-btn">
+              <span id="art-btn-text">🎨 GENERATE ARTWORK</span>
+            </button>
+          </div>
+          <div class="terminal-output" id="artwork-output">
+            <div class="output-placeholder">
+              <span class="cursor-blink">_</span>
+              <span> Awaiting input — enter style &amp; mood to generate artwork...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: DAO Agent -->
+      <div class="tab-panel" id="tab-dao-agent">
+        <div class="terminal-body">
+          <div class="terminal-topbar">
+            <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+            <span class="terminal-title">hottdrop@hd2ai:~$ dao-agent</span>
+          </div>
+          <div class="terminal-form">
+            <div class="form-row">
+              <label>DAO NAME</label>
+              <select id="dao-select">
+                <option value="Dubstep DAO">Dubstep DAO</option>
+                <option value="Jungle / DnB DAO">Jungle / DnB DAO</option>
+                <option value="Reggae DAO">Reggae DAO</option>
+                <option value="Hip-Hop DAO">Hip-Hop DAO</option>
+                <option value="Hottdrop DAO">Hottdrop DAO (Global)</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>PROPOSAL TEXT</label>
+              <textarea id="dao-proposal" rows="5" placeholder="Paste or type the DAO proposal here. The AI agent will summarise it, give a recommendation, and generate a community announcement..."></textarea>
+            </div>
+            <button class="btn-terminal" onclick="submitDAOProposal()">
+              <span id="dao-btn-text">📊 ANALYSE PROPOSAL</span>
+            </button>
+          </div>
+          <div class="terminal-output" id="dao-output">
+            <div class="output-placeholder">
+              <span class="cursor-blink">_</span>
+              <span> Paste a proposal above and hit Analyse...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Revenue Agent -->
+      <div class="tab-panel" id="tab-revenue">
+        <div class="terminal-body">
+          <div class="terminal-topbar">
+            <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+            <span class="terminal-title">hottdrop@hd2ai:~$ revenue-agent</span>
+          </div>
+          <div class="terminal-form">
+            <div class="form-row">
+              <label>ARTIST NAME</label>
+              <input type="text" id="rev-artist" placeholder="e.g. DJ Voltage" />
+            </div>
+            <div class="form-row" id="rev-wallet-row">
+              <label>WALLET ADDRESS</label>
+              <input type="text" id="rev-wallet" placeholder="Connect wallet or paste 0x..." />
+            </div>
+            <div class="form-row">
+              <label>ROYALTY RATE (%)</label>
+              <input type="number" id="rev-royalty" placeholder="15" value="15" min="1" max="50" />
+            </div>
+            <button class="btn-terminal" onclick="loadRevenueReport()">
+              <span id="rev-btn-text">💰 LOAD ROYALTY REPORT</span>
+            </button>
+          </div>
+          <div class="terminal-output" id="revenue-output">
+            <div class="output-placeholder">
+              <span class="cursor-blink">_</span>
+              <span> Connect wallet or enter details to view your royalty dashboard...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 

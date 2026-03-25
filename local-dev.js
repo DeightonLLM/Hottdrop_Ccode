@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname)));
 // Fallback for SPA routing if needed
 app.get("*", (req, res, next) => {
   // If it's one of our API endpoints, let it pass through
-  const apiRoutes = ["/generate-release", "/artist-onboard", "/create-drop"];
+  const apiRoutes = ["/generate-release", "/artist-onboard", "/create-drop", "/dao-agent", "/revenue-agent", "/generate-artwork"];
   if (apiRoutes.includes(req.path)) {
     return next();
   }
