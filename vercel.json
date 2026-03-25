@@ -12,10 +12,6 @@
     {
       "source": "/create-drop",
       "destination": "/api"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
     }
   ]
 }
