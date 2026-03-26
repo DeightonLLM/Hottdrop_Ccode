@@ -71,7 +71,7 @@ input, select, textarea {
   text-decoration: none;
   flex-shrink: 0;
 }
-.logo-img { height: 32px; width: auto; }
+.logo-img { height: 48px; width: auto; }
 .logo-text {
   font-family: var(--font-sans);
   font-weight: 800;
@@ -996,7 +996,7 @@ input, select, textarea {
   grid-template-columns: 2fr 1fr 1fr 2fr;
   gap: 40px;
 }
-.footer-logo { height: 28px; width: auto; margin-bottom: 16px; }
+.footer-logo { height: 40px; width: auto; margin-bottom: 16px; }
 .footer-desc { color: var(--muted); font-size: 12px; line-height: 1.7; margin-bottom: 20px; }
 .footer-social { display: flex; gap: 16px; }
 .footer-social a {

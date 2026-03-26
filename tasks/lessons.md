@@ -7,3 +7,7 @@
 ## Robust Web3 AI Integration (The Fallback Pattern)
 - **The Challenge**: Integrating LLMs (OpenAI, Gemini) and image APIs (Replicate) directly into a production app without risking downtime or crashes if keys are missing, rate limits hit, or APIs fail.
 - **The Solution**: Built a strict "Fallback Pattern" where every agent endpoint attempts an API call (wrapped in a try/catch or `.catch(() => null)`) but has a perfectly formatted deterministic string-template fallback ready to go if the LLM fails. This allows the frontend to be developed and tested fully without API keys, guarantees the UI never breaks, and keeps the Node backend clean without needing external orchestration frameworks like Langchain. All backend iteration was done via an "append-only" strategy to prevent regressions on the working MVP.
+
+## Hottdrop Branding and Logo Integrity (Prestige-First Design)
+- **The Challenge**: Using generic or incorrect logos in a high-prestige Web3 project, which dilutes brand identity.
+- **The Solution**: Always use the official "HØTT DRØP" stacked logo (represented as a white PNG for dark-mode premium feel). Crucially, the logo must only be placed in high-impact, strategic locations (Navigation Header and Footer) rather than being scattered across the UI. This "minimalist-premium" approach maintains the project's prestige by avoiding UI clutter and emphasizing quality over quantity. CSS constraints for the logo should ensure its unique stacked vertical layout remains legible without dominating the screen space.
