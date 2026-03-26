@@ -20,6 +20,7 @@
   --muted:    #6B6B88;
   --font-mono: 'Syne Mono', 'Courier New', monospace;
   --font-sans: 'Syne', 'Arial', sans-serif;
+  --font-brand: 'Syncopate', 'Arial', sans-serif;
   --r:        6px;
   --transition: 0.2s ease;
 }
@@ -73,8 +74,8 @@ input, select, textarea {
 }
 .logo-img { height: 48px; width: auto; }
 .logo-text {
-  font-family: var(--font-sans);
-  font-weight: 800;
+  font-family: var(--font-brand);
+  font-weight: 700;
   font-size: 18px;
   color: var(--cyan);
   letter-spacing: 0.1em;
@@ -219,9 +220,9 @@ input, select, textarea {
   50%       { box-shadow: 0 0 0 6px rgba(0,255,133,0); }
 }
 .hero-title {
-  font-family: var(--font-sans);
-  font-weight: 800;
-  font-size: clamp(56px, 12vw, 140px);
+  font-family: var(--font-brand);
+  font-weight: 700;
+  font-size: clamp(56px, 12vw, 120px);
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--text);
