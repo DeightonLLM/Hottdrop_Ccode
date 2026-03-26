@@ -14,8 +14,8 @@
 
 ## Canonical Project Structure (Vercel & Local Sync)
 - **The Challenge**: Misalignment between local development (using `local-dev.js`) and Vercel serverless deployment (using `api/index.js`) leads to 404s for static assets and missing logos.
-- **The Solution**: Maintain a strict "Root-First" architecture for active static files:
-  - `index.html`, `style.css`, and `app.js` MUST reside at the project root.
-  - All images and media assets MUST reside in the `public/` directory.
-  - All HTML/CSS references to assets MUST use the `public/` prefix (e.g., `src="public/logo-white.png"`).
-  - This structure ensures zero-config compatibility with Vercel's edge network while remaining perfectly served by the local Express middleware in `local-dev.js`.
+- **The Solution**: Maintain a strict "Public-First" architecture for all static files to align with Vercel's zero-config default:
+  - `index.html`, `style.css`, and `app.js` MUST reside in the `public/` directory alongside all images and media assets.
+  - All HTML/CSS references to assets MUST use standard relative paths (e.g., `src="logo-white.png"`) without any `public/` prefix.
+  - `local-dev.js` MUST serve the `public/` directory as its static root (`app.use(express.static(path.join(__dirname, "public")));`).
+  - This ensures 1:1 parity between local development and Vercel's edge network, entirely preventing 404 errors.

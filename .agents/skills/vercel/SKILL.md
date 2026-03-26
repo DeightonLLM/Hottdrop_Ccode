@@ -8,32 +8,32 @@ description: Guidelines for managing the canonical project structure and Vercel 
 This skill defines the mandatory project structure and deployment patterns for Hottdrop to ensure static asset resolution and API functionality on Vercel.
 
 ## 1. Canonical Project Structure
-To prevent 404 errors and missing assets on Vercel, the project MUST follow this layout:
+To prevent 404 errors and missing assets on Vercel, the project MUST follow the "Public-First" static layout:
 
 ```text
 /
-├── index.html        # Main Entry Point (MUST be in root)
-├── style.css         # Main Stylesheet (MUST be in root)
-├── app.js            # Main Frontend Logic (MUST be in root)
 ├── api/
 │   └── index.js      # Serverless API logic (Express app)
-├── public/           # Static Assets ONLY (Images, Media)
+├── public/           # ALL Static Assets 
+│   ├── index.html    # Main Entry Point
+│   ├── style.css     # Main Stylesheet
+│   ├── app.js        # Main Frontend Logic
 │   ├── logo-white.png
 │   ├── hero-bg.jpg
 │   └── ...
 ├── tasks/            # Documentation & Lessons
-└── vercel.json       # Vercel Configuration
+├── local-dev.js      # Local Express server (MUST serve the public/ directory)
+└── vercel.json       # Vercel Configuration (API rewrites ONLY)
 ```
 
 ## 2. Asset Referencing
-- **HTML**: All image and background-image paths in `index.html` MUST be prefixed with `public/` (e.g., `<img src="public/logo-white.png">`).
-- **CSS**: Relative paths in `style.css` should point to `public/` if assets are stored there.
-- **Root Files**: `index.html`, `style.css`, and `app.js` must remain in the root directory to be served correctly by Vercel's zero-config default.
+- **HTML/CSS**: Because Vercel automatically treats the `public/` directory as the deployment root, all static assets inside `public/` should reference each other via standard relative paths without any prefix (e.g., `<img src="logo-white.png">`).
+- **DO NOT** use `public/...` prefixes in `index.html`.
 
-## 3. Server Logic (`api/index.js` vs `local-dev.js`)
-- **Production**: Vercel serves the `api/` directory as serverless functions. It DOES NOT use `local-dev.js`.
-- **Local Dev**: `npm run dev` uses `local-dev.js`, which serves the root directory (`__dirname`) as static files. This confirms why `index.html` must be in the root.
+## 3. Server Logic (`local-dev.js`)
+- **Local Dev Sync**: `local-dev.js` MUST serve the `public/` directory as its static root to mirror Vercel behavior exactly: 
+  `app.use(express.static(path.join(__dirname, "public")));`
+- This ensures 1:1 parity between local development (`npm run dev`) and production (Vercel).
 
 ## 4. Anti-Patterns
-- **Moving `index.html` to `public/`**: This breaks the `local-dev.js` routing and requires complex `vercel.json` rewrites that often lead to 404s for relative assets.
-- **Absolute Paths**: Avoid using `/public/...` in paths unless the project is specifically configured with `public` as the root. Stick to relative `public/...` for consistency across local and production environments.
+- **Moving `index.html` to the Root**: If you move `index.html` out of `public/`, Vercel will STILL deploy `public/` as the root, resulting in a **404 NOT FOUND** error for the entire site. Never move the entry files out of `public/`.

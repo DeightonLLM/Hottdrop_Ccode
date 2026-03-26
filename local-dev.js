@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from the root directory
 // This is needed for local development as Vercel handles static files automatically
 // We add this BEFORE any other routes are called (though api/index already defined some)
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Fallback for SPA routing if needed
 app.get("*", (req, res, next) => {
