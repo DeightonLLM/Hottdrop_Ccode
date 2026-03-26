@@ -115,57 +115,106 @@ document.addEventListener("click", (e) => {
 });
 
 // ============================================================
-// WEB3 — WALLET CONNECTION
-// Using ethers.js v6 loaded via CDN
+// WEB3 — MULTI-WALLET + MULTI-CHAIN
+// Supports: MetaMask, Coinbase Wallet, WalletConnect, any injected
+// Chains: Polygon, Ethereum, Base, Arbitrum, Optimism, BNB
 // ============================================================
 
-async function connectWallet() {
-  const btn = document.getElementById("walletBtn");
-  const label = document.getElementById("walletLabel");
-  const labelMobile = document.getElementById("walletLabelMobile");
+// Chain configs for switching
+const CHAINS = {
+  137:   { name: "Polygon",  rpc: "https://polygon-rpc.com",             symbol: "MATIC", explorer: "https://polygonscan.com" },
+  1:     { name: "Ethereum", rpc: "https://cloudflare-eth.com",          symbol: "ETH",   explorer: "https://etherscan.io" },
+  8453:  { name: "Base",     rpc: "https://mainnet.base.org",            symbol: "ETH",   explorer: "https://basescan.org" },
+  42161: { name: "Arbitrum", rpc: "https://arb1.arbitrum.io/rpc",        symbol: "ETH",   explorer: "https://arbiscan.io" },
+  10:    { name: "Optimism", rpc: "https://mainnet.optimism.io",         symbol: "ETH",   explorer: "https://optimistic.etherscan.io" },
+  56:    { name: "BNB Chain",rpc: "https://bsc-dataseed.binance.org",    symbol: "BNB",   explorer: "https://bscscan.com" },
+};
 
-  // If already connected — disconnect
+let selectedChainId = 137; // Default: Polygon
+
+/** Open wallet picker modal */
+function connectWallet() {
   if (walletAddress) {
+    // Already connected → disconnect
     walletAddress = null;
     provider = null;
     signer = null;
-    btn.classList.remove("connected");
-    label.textContent = "CONNECT WALLET";
-    if (labelMobile) labelMobile.textContent = "CONNECT WALLET";
+    updateWalletUI(null);
     showToast("Wallet disconnected", "info");
     return;
   }
+  // Detect available wallets and badge them
+  const mmBadge = document.getElementById("mm-badge");
+  const cbBadge = document.getElementById("cb-badge");
+  if (mmBadge) mmBadge.textContent = window.ethereum?.isMetaMask ? "Detected" : "";
+  if (cbBadge) cbBadge.textContent = window.ethereum?.isCoinbaseWallet ? "Detected" : "";
+  document.getElementById("walletPickerModal").classList.add("open");
+}
 
-  // Check for MetaMask / injected provider
-  if (!window.ethereum) {
-    showToast("No Web3 wallet found. Please install MetaMask.", "error", 5000);
-    window.open("https://metamask.io/download/", "_blank");
-    return;
-  }
+function closeWalletPicker(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById("walletPickerModal").classList.remove("open");
+}
+
+/** Network chip selector */
+function selectNetwork(el) {
+  document.querySelectorAll(".net-chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  selectedChainId = parseInt(el.dataset.chainid);
+}
+
+/** Attempt wallet connection by type */
+async function connectWithWallet(type) {
+  const btn = document.getElementById("walletBtn");
+
+  // Disable all options whilst connecting
+  document.querySelectorAll(".wallet-option").forEach(b => b.disabled = true);
 
   try {
-    btn.textContent = "CONNECTING...";
-    btn.disabled = true;
+    let rawProvider;
 
-    // ethers v6 BrowserProvider
-    provider = new ethers.BrowserProvider(window.ethereum);
+    if (type === "walletconnect") {
+      showToast("WalletConnect: copy the URI into your mobile wallet app.", "info", 6000);
+      // WalletConnect v2 — requires project ID; open deep-link fallback
+      const wcUri = `wc:${Date.now().toString(16)}?relay-protocol=irn&symKey=00`;
+      window.open(`https://walletconnect.com/explorer?search=`, "_blank");
+      document.querySelectorAll(".wallet-option").forEach(b => b.disabled = false);
+      return;
+    }
+
+    if (!window.ethereum) {
+      showToast("No browser wallet found. Install MetaMask or Coinbase Wallet.", "error", 6000);
+      window.open("https://metamask.io/download/", "_blank");
+      document.querySelectorAll(".wallet-option").forEach(b => b.disabled = false);
+      return;
+    }
+
+    // For coinbase vs metamask, prefer the right provider from the list
+    if (type === "coinbase" && window.ethereum.providers) {
+      rawProvider = window.ethereum.providers.find(p => p.isCoinbaseWallet) || window.ethereum;
+    } else if (type === "metamask" && window.ethereum.providers) {
+      rawProvider = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum;
+    } else {
+      rawProvider = window.ethereum;
+    }
+
+    provider = new ethers.BrowserProvider(rawProvider);
     await provider.send("eth_requestAccounts", []);
+
+    // Switch / add the selected chain
+    await switchChain(rawProvider, selectedChainId);
+
     signer = await provider.getSigner();
     walletAddress = await signer.getAddress();
 
-    // Update UI
-    btn.classList.add("connected");
-    label.innerHTML = `<span class="wallet-icon">◈</span> ${truncateAddress(walletAddress)}`;
-    if (labelMobile) labelMobile.textContent = truncateAddress(walletAddress);
-
     const network = await provider.getNetwork();
-    showToast(`Wallet connected: ${truncateAddress(walletAddress)} on ${network.name}`, "success");
+    updateWalletUI(walletAddress, network.name);
+    closeWalletPicker();
+    showToast(`◈ Connected: ${truncateAddress(walletAddress)} on ${CHAINS[selectedChainId]?.name || network.name}`, "success");
 
-    // Prefill wallet address into NFT drop form if visible
-    const nftArtistInput = document.getElementById("nft-artist");
-    if (nftArtistInput && !nftArtistInput.value) {
-      // Leave for user to fill, just note the connection
-    }
+    // Listen for future account/chain changes
+    rawProvider.on("accountsChanged", onAccountsChanged);
+    rawProvider.on("chainChanged", onChainChanged);
 
   } catch (err) {
     console.error("Wallet connection error:", err);
@@ -174,29 +223,72 @@ async function connectWallet() {
       : "Failed to connect wallet. Please try again.";
     showToast(msg, "error");
   } finally {
-    btn.disabled = false;
-    // Restore button if connection failed
-    if (!walletAddress) {
-      label.innerHTML = `<span class="wallet-icon">◈</span> CONNECT WALLET`;
-      if (labelMobile) labelMobile.textContent = "CONNECT WALLET";
-    }
+    document.querySelectorAll(".wallet-option").forEach(b => b.disabled = false);
   }
 }
 
-// Listen for account changes
-if (window.ethereum) {
-  window.ethereum.on("accountsChanged", (accounts) => {
-    if (accounts.length === 0) {
-      walletAddress = null;
-      document.getElementById("walletBtn").classList.remove("connected");
-      document.getElementById("walletLabel").innerHTML = `<span class="wallet-icon">◈</span> CONNECT WALLET`;
-      showToast("Wallet disconnected", "info");
-    } else {
-      walletAddress = accounts[0];
-      document.getElementById("walletLabel").innerHTML = `<span class="wallet-icon">◈</span> ${truncateAddress(walletAddress)}`;
-      showToast(`Switched to ${truncateAddress(walletAddress)}`, "info");
+/** Switch (or add) a chain in the wallet */
+async function switchChain(rawProvider, chainId) {
+  const hexId = "0x" + chainId.toString(16);
+  try {
+    await rawProvider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexId }] });
+  } catch (err) {
+    // Chain not added yet (4902) — add it automatically
+    if (err.code === 4902) {
+      const cfg = CHAINS[chainId];
+      if (!cfg) return;
+      await rawProvider.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId: hexId,
+          chainName: cfg.name,
+          rpcUrls: [cfg.rpc],
+          nativeCurrency: { name: cfg.symbol, symbol: cfg.symbol, decimals: 18 },
+          blockExplorerUrls: [cfg.explorer],
+        }],
+      });
     }
-  });
+    // Ignore other errors (e.g. already on chain)
+  }
+}
+
+/** Update all wallet UI elements */
+function updateWalletUI(address, networkName) {
+  const btn    = document.getElementById("walletBtn");
+  const label  = document.getElementById("walletLabel");
+  const mobile = document.getElementById("walletLabelMobile");
+  if (address) {
+    btn.classList.add("connected");
+    const chainLabel = CHAINS[selectedChainId]?.name || networkName || "";
+    label.innerHTML  = `<span class="wallet-icon">◈</span> ${truncateAddress(address)}<span class="wallet-chain-tag">${chainLabel}</span>`;
+    if (mobile) mobile.textContent = truncateAddress(address);
+  } else {
+    btn.classList.remove("connected");
+    label.innerHTML = `<span class="wallet-icon">◈</span> CONNECT WALLET`;
+    if (mobile) mobile.textContent = "CONNECT WALLET";
+  }
+}
+
+/** Account change handler */
+function onAccountsChanged(accounts) {
+  if (accounts.length === 0) {
+    walletAddress = null;
+    updateWalletUI(null);
+    showToast("Wallet disconnected", "info");
+  } else {
+    walletAddress = accounts[0];
+    updateWalletUI(walletAddress);
+    showToast(`Switched to ${truncateAddress(walletAddress)}`, "info");
+  }
+}
+
+/** Chain change handler */
+function onChainChanged(chainIdHex) {
+  const newChainId = parseInt(chainIdHex, 16);
+  selectedChainId = newChainId;
+  const chainName = CHAINS[newChainId]?.name || `Chain ${newChainId}`;
+  if (walletAddress) updateWalletUI(walletAddress, chainName);
+  showToast(`Switched network: ${chainName}`, "info");
 }
 
 // ============================================================

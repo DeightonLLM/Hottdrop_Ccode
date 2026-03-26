@@ -1344,3 +1344,152 @@ input, select, textarea {
   background-size: 400px 100%;
   animation: shimmer 1.4s infinite;
 }
+
+/* ============================================================
+   MULTI-WALLET PICKER
+============================================================ */
+.wallet-picker-box {
+  max-width: 480px;
+  padding: 32px 28px 24px;
+}
+.wallet-picker-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.wallet-picker-header h3 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.15em;
+  margin: 8px 0 4px;
+}
+.wallet-picker-sub {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+/* Network chips */
+.wallet-network-row {
+  margin-bottom: 20px;
+}
+.wallet-network-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.wallet-network-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.net-chip {
+  background: var(--void);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 5px 12px;
+  border-radius: 20px;
+  transition: all var(--transition);
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+.net-chip:hover {
+  border-color: var(--border2);
+  color: var(--text);
+}
+.net-chip.active {
+  background: rgba(0,212,255,0.1);
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+/* Wallet option buttons */
+.wallet-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.wallet-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--void);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  color: var(--text);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  transition: all var(--transition);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+.wallet-option:hover {
+  border-color: var(--cyan-dim);
+  background: rgba(0,212,255,0.05);
+  transform: translateX(3px);
+}
+.wallet-option:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.wallet-option-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.wallet-option-icon-text {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.wallet-option-badge {
+  margin-left: auto;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--green);
+  border: 1px solid rgba(0,255,133,0.25);
+  background: rgba(0,255,133,0.06);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.wallet-option-wc .wallet-option-badge {
+  color: var(--cyan);
+  border-color: var(--cyan-dim);
+  background: rgba(0,212,255,0.06);
+}
+.wallet-picker-disclaimer {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* Chain tag that appears on the nav wallet button when connected */
+.wallet-chain-tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--black);
+  background: var(--cyan);
+  border-radius: 2px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: 700;
+}
+

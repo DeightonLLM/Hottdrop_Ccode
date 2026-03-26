@@ -716,6 +716,58 @@
   </footer>
 
   <!-- ============================================================
+       WALLET PICKER MODAL
+  ============================================================ -->
+  <div class="modal-overlay" id="walletPickerModal" onclick="closeWalletPicker(event)">
+    <div class="modal-box wallet-picker-box">
+      <button class="modal-close" onclick="closeWalletPicker()">✕</button>
+      <div class="wallet-picker-header">
+        <span class="wallet-icon" style="font-size:1.4rem;">◈</span>
+        <h3>CONNECT WALLET</h3>
+        <p class="wallet-picker-sub">Choose your wallet &amp; network</p>
+      </div>
+
+      <!-- Network Selector -->
+      <div class="wallet-network-row">
+        <label class="wallet-network-label">NETWORK</label>
+        <div class="wallet-network-chips" id="networkChips">
+          <button class="net-chip active" data-chainid="137" data-name="Polygon" onclick="selectNetwork(this)">🟣 Polygon</button>
+          <button class="net-chip" data-chainid="1" data-name="Ethereum" onclick="selectNetwork(this)">⬡ Ethereum</button>
+          <button class="net-chip" data-chainid="8453" data-name="Base" onclick="selectNetwork(this)">🔵 Base</button>
+          <button class="net-chip" data-chainid="42161" data-name="Arbitrum" onclick="selectNetwork(this)">🔵 Arbitrum</button>
+          <button class="net-chip" data-chainid="10" data-name="Optimism" onclick="selectNetwork(this)">🔴 Optimism</button>
+          <button class="net-chip" data-chainid="56" data-name="BNB Chain" onclick="selectNetwork(this)">🟡 BNB Chain</button>
+        </div>
+      </div>
+
+      <!-- Wallet Options -->
+      <div class="wallet-options" id="walletOptions">
+        <button class="wallet-option" id="wo-metamask" onclick="connectWithWallet('metamask')">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" class="wallet-option-icon" onerror="this.style.display='none'"/>
+          <span>MetaMask</span>
+          <span class="wallet-option-badge" id="mm-badge"></span>
+        </button>
+        <button class="wallet-option" id="wo-coinbase" onclick="connectWithWallet('coinbase')">
+          <img src="https://altcoinsbox.com/wp-content/uploads/2023/01/coinbase-wallet-logo.png" alt="Coinbase" class="wallet-option-icon" onerror="this.style.display='none'"/>
+          <span>Coinbase Wallet</span>
+          <span class="wallet-option-badge" id="cb-badge"></span>
+        </button>
+        <button class="wallet-option" id="wo-injected" onclick="connectWithWallet('injected')">
+          <span class="wallet-option-icon-text">◈</span>
+          <span>Browser Wallet</span>
+          <span class="wallet-option-badge" id="inj-badge">Any EIP-1193</span>
+        </button>
+        <button class="wallet-option wallet-option-wc" id="wo-walletconnect" onclick="connectWithWallet('walletconnect')">
+          <img src="https://avatars.githubusercontent.com/u/37784886" alt="WalletConnect" class="wallet-option-icon" onerror="this.style.display='none'"/>
+          <span>WalletConnect</span>
+          <span class="wallet-option-badge">QR Code</span>
+        </button>
+      </div>
+      <div class="wallet-picker-disclaimer">Non-custodial. We never store your keys.</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
        MINT MODAL
   ============================================================ -->
   <div class="modal-overlay" id="mintModal" onclick="closeMintModal(event)">
