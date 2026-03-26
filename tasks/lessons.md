@@ -11,3 +11,11 @@
 ## Hottdrop Branding and Logo Integrity (Prestige-First Design)
 - **The Challenge**: Using generic or incorrect logos in a high-prestige Web3 project, which dilutes brand identity.
 - **The Solution**: Always use the official "HØTT DRØP" stacked logo (represented as a white PNG for dark-mode premium feel). Crucially, the logo must only be placed in high-impact, strategic locations (Navigation Header and Footer) rather than being scattered across the UI. This "minimalist-premium" approach maintains the project's prestige by avoiding UI clutter and emphasizing quality over quantity. CSS constraints for the logo should ensure its unique stacked vertical layout remains legible without dominating the screen space.
+
+## Canonical Project Structure (Vercel & Local Sync)
+- **The Challenge**: Misalignment between local development (using `local-dev.js`) and Vercel serverless deployment (using `api/index.js`) leads to 404s for static assets and missing logos.
+- **The Solution**: Maintain a strict "Root-First" architecture for active static files:
+  - `index.html`, `style.css`, and `app.js` MUST reside at the project root.
+  - All images and media assets MUST reside in the `public/` directory.
+  - All HTML/CSS references to assets MUST use the `public/` prefix (e.g., `src="public/logo-white.png"`).
+  - This structure ensures zero-config compatibility with Vercel's edge network while remaining perfectly served by the local Express middleware in `local-dev.js`.
